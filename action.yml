@@ -4,6 +4,9 @@ inputs:
   release:
     description: 'The release you want to deploy'
     required: true
+  image:
+    description: 'The "fully qualified" image name, eg. <user>/<image> or '
+    required: true
   deployment-manifest:
     description: 'The deployment yaml file'
     required: true
