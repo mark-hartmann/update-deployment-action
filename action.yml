@@ -1,0 +1,15 @@
+name: 'Update Kubernetes Deployment'
+description: 'updates the specified deployment file'
+inputs:
+  release:
+    description: 'The release you want to deploy'
+    required: true
+  deployment-manifest:
+    description: 'The deployment yaml file'
+    required: true
+outputs:
+  container:
+    description: 'The container + release'
+runs:
+  using: 'node12'
+  main: 'index.js'
