@@ -5,7 +5,9 @@ try {
     const release = core.getInput('release');
     const manifest = core.getInput('deployment-manifest');
 
-    console.log(`Trying to apply ${release}!`);
+    console.log(`Trying to apply ${release} to ${manifest}!`);
+
+
     const time = (new Date()).toTimeString();
     core.setOutput("time", time);
     // Get the JSON webhook payload for the event that triggered the workflow

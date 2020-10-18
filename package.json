@@ -18,7 +18,8 @@
   "homepage": "https://github.com/mark-hartmann/update-deployment-action#readme",
   "dependencies": {
     "@actions/core": "^1.2.6",
-    "@actions/github": "^4.0.0"
+    "@actions/github": "^4.0.0",
+    "yaml": "^1.10.0"
   },
   "devDependencies": {
     "jest": "^26.5.3"
