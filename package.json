@@ -1,0 +1,23 @@
+{
+  "name": "update-deployment-action",
+  "version": "0.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mark-hartmann/update-deployment-action.git"
+  },
+  "author": "Mark Hartmann",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/mark-hartmann/update-deployment-action/issues"
+  },
+  "homepage": "https://github.com/mark-hartmann/update-deployment-action#readme",
+  "dependencies": {
+    "@actions/core": "^1.2.6",
+    "@actions/github": "^4.0.0"
+  }
+}
