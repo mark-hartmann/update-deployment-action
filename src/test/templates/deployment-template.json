@@ -1,0 +1,28 @@
+{
+  "apiVersion": "v1",
+  "kind": "Deployment",
+  "metadata": {
+    "name": "random-deployment"
+  },
+  "spec": {
+    "replicas": 1,
+    "selector": {
+      "app": "random-app"
+    },
+    "template": {
+      "metadata": {
+        "labels": {
+          "app": "random-app"
+        }
+      },
+      "spec": {
+        "containers": [
+          {
+            "name": "random-app",
+            "image": null
+          }
+        ]
+      }
+    }
+  }
+}
