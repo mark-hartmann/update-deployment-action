@@ -16,12 +16,7 @@
         }
       },
       "spec": {
-        "containers": [
-          {
-            "name": "random-app",
-            "image": null
-          }
-        ]
+        "containers": []
       }
     }
   }
