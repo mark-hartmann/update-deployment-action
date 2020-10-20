@@ -27,6 +27,14 @@ function randomIntFromInterval(min: number, max: number): number { // min and ma
     return Math.floor(Math.random() * (max - min + 1) + min);
 }
 
+function shuffle(a: any) {
+    for (let i = a.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [a[i], a[j]] = [a[j], a[i]];
+    }
+    return a;
+}
+
 const generateImageName = () => {
     return uniqueNamesGenerator({
         dictionaries: [adjectives, animals],
@@ -58,11 +66,11 @@ const serviceFragment = (): string => {
 };
 
 
-const deploymentFragment = (): Deployment => {
+const deploymentFragment = (config: { containers: { amount: number } }): Deployment => {
 
     const templatePath = './src/test/templates/deployment-template.json';
     const content = JSON.parse(fs.readFileSync(templatePath, 'utf8'));
-    const nContainers = randomIntFromInterval(1, 4);
+    const nContainers = config.containers.amount;
 
     const containers: Container[] = [];
 
@@ -92,46 +100,55 @@ const deploymentFragment = (): Deployment => {
     };
 };
 
-export const generateDeployment = (): DeploymentInfo => {
+export interface Config {
+    services?: {
+        amount: number
+    },
+    deployments?: {
+        amount: number,
+        containers?: {
+            amount: number
+        }
+    },
+    shuffle?: boolean
+}
+
+export const generateDeployment = (config?: Config): DeploymentInfo => {
 
     const documents = [];
-    const maxDocuments = [1, 2, 3, 4];
-    const totalDocuments = maxDocuments[Math.floor(Math.random() * maxDocuments.length)];
 
-    let services = 0;
-    let deployments = 0;
-    let containerToChange: Container;
+    const totalServices = config?.services?.amount || 3
+    const totalDeployments = config?.deployments?.amount || 1
+    const totalContainersPerDocument = config?.deployments?.containers?.amount || -1;
 
-    for (let i = 0; i < totalDocuments; i++) {
-        const create = deployments > 0
-            ? 'Service'
-            : ['Service', 'Deployment'][Math.round(Math.random())];
+    let containerToTest: Container;
 
-        if (create === 'Service') {
-            documents.push(serviceFragment());
-            services++;
-        }
+    for (let i = 0; i < totalServices; i++) {
+        documents.push(serviceFragment());
+    }
 
-        if (create === 'Deployment') {
-            const deployment: Deployment = deploymentFragment();
-            const n = deployment.containers.length;
+    for (let i = 0; i < totalDeployments; i++) {
+        const nContainers = totalContainersPerDocument > -1 ? totalContainersPerDocument : randomIntFromInterval(1, 4);
+        const deployment: Deployment = deploymentFragment({
+            containers: {
+                amount: nContainers
+            }
+        });
 
-            containerToChange = deployment.containers[Math.floor((Math.random() * n))];
-            documents.push(deployment.manifest);
-
-            deployments++;
-        }
+        containerToTest = deployment.containers[Math.floor((Math.random() * nContainers))];
+        documents.push(deployment.manifest);
     }
 
     const deploymentFile = `${testDataDirectory}/${generateImageName()}-deployment.yaml`;
 
-    fs.writeFileSync(deploymentFile, yaml.stringify(documents));
+    console.log(shuffle(documents));
+    fs.writeFileSync(deploymentFile, yaml.stringify(shuffle(documents)));
 
     return {
-        isValid: deployments !== 0,
+        isValid: totalDeployments !== 0,
         nextRelease: generateReleaseName(),
         // @ts-ignore
-        container: containerToChange,
+        container: containerToTest,
         path: deploymentFile
     };
 }
