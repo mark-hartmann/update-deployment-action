@@ -12,5 +12,5 @@ beforeEach(() => {
 });
 
 afterEach(() => {
-    fs.rmdirSync(testDataDirectory);
+    fs.rmdirSync(testDataDirectory, {recursive: true});
 });
