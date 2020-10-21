@@ -4,10 +4,10 @@ inputs:
   release:
     description: 'The release you want to deploy'
     required: true
-  image:
-    description: 'The "fully qualified" image name, eg. <user>/<image> or '
+  container:
+    description: 'The name of the container you want to apply the release to.'
     required: true
-  deployment-manifest:
+  deployment:
     description: 'The deployment yaml file'
     required: true
 outputs:
