@@ -74,4 +74,28 @@ it('extracts the username, image and explicit tag', () => {
     expect(extracted.release).toEqual(release);
 });
 
-it.todo('can handle DockerHub officials (only the package (+ release))');
+it('can handle DockerHub officials (only the package name)', () => {
+    const imageName = getImageName();
+
+    const data = `${imageName}`;
+    const extracted = extractContainerData(data);
+
+    expect(extracted.repository).not.toBeDefined();
+    expect(extracted.user).not.toBeDefined();
+    expect(extracted.release).not.toBeDefined();
+    expect(extracted.image).toEqual(imageName);
+});
+
+it('can handle DockerHub officials (package name + release)', () => {
+    const imageName = getImageName();
+    const release = 'v4.34.764';
+
+    const data = `${imageName}:${release}`;
+    const extracted = extractContainerData(data);
+
+    expect(extracted.repository).not.toBeDefined();
+    expect(extracted.user).not.toBeDefined();
+
+    expect(extracted.release).toEqual(release);
+    expect(extracted.image).toEqual(imageName);
+});

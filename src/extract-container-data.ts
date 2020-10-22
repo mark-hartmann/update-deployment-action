@@ -6,55 +6,37 @@ export interface ContainerData {
 }
 
 const extractContainerData = (str: string): ContainerData => {
-    const regex = /(?<user>.+)\/(?<name>[\w-]+)(?<release>.+)?/gm;
 
-    let repo;
-    let user: string;
-    let image: string;
+    const registryRegex = /(.*\/)/;
+    const tagRegex = /(?<=:)(?<tag>.+)/;
+
+    const pos = str.search(tagRegex);
     let release;
+    if (pos !== -1) {
+        release = str.substring(pos);
+        str = str.substr(0, pos - 1);
+    }
 
-    let m;
-    while ((m = regex.exec(str)) !== null) {
-        // This is necessary to avoid infinite loops with zero-width matches
-        if (m.index === regex.lastIndex) {
-            regex.lastIndex++;
-        }
+    const pos2 = str.split(registryRegex);
 
-        // The result can be accessed through the `m`-variable.
-        m.forEach((match, groupIndex) => {
+    const image = pos2.pop();
+    const registry = pos2.join('');
 
-            if (groupIndex === 0) {
-                return;
-            }
-
-            switch (groupIndex) {
-                case 1:
-                    if (match.includes('/')) {
-                        const fragments = match.split('/');
-                        // @ts-ignore
-                        user = fragments.pop();
-                        repo = fragments.join('/');
-                    } else {
-                        user = match;
-                    }
-                    break;
-                case 2:
-                    image = match;
-                    break;
-                case 3:
-                    release = match ? match.replace(':', '') : undefined;
-                    break;
-            }
-        });
+    let repos;
+    let users;
+    if (registry) {
+        const fragments = registry.replace(/[\/]+$/, "").split('/');
+        users = fragments.pop();
+        repos = fragments.join('/');
     }
 
     return {
         // @ts-ignore
         image: image,
         release: release,
-        repository: repo,
+        repository: repos || undefined,
         // @ts-ignore
-        user: user,
+        user: users,
     }
 };
 
