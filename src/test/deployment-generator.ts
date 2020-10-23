@@ -141,7 +141,6 @@ export const generateDeployment = (config?: Config): DeploymentInfo => {
 
     const deploymentFile = `${testDataDirectory}/${generateImageName()}-deployment.yaml`;
 
-    console.log(shuffle(documents));
     fs.writeFileSync(deploymentFile, yaml.stringify(shuffle(documents)));
 
     return {
