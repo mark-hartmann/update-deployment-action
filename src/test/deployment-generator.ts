@@ -2,6 +2,7 @@ import {adjectives, animals, names, uniqueNamesGenerator} from 'unique-names-gen
 import {testDataDirectory} from "./setup";
 import fs from 'fs';
 import yaml from 'yaml';
+import {doc} from "prettier";
 
 export interface DeploymentInfo {
     path: string,
@@ -117,9 +118,15 @@ export const generateDeployment = (config?: Config): DeploymentInfo => {
 
     const documents = [];
 
-    const totalServices = config?.services?.amount || 3
-    const totalDeployments = config?.deployments?.amount || 1
-    const totalContainersPerDocument = config?.deployments?.containers?.amount || -1;
+    const totalServices = config?.services?.amount !== undefined
+        ? config.services.amount
+        : 3;
+    const totalDeployments = config?.deployments?.amount !== undefined
+        ? config.deployments.amount
+        : 1;
+    const totalContainersPerDocument = config?.deployments?.containers?.amount !== undefined
+        ? config.deployments.containers.amount
+        : -1;
 
     let containerToTest: Container;
 
@@ -141,8 +148,17 @@ export const generateDeployment = (config?: Config): DeploymentInfo => {
 
     const deploymentFile = `${testDataDirectory}/${generateImageName()}-deployment.yaml`;
 
-    console.log(shuffle(documents));
-    fs.writeFileSync(deploymentFile, yaml.stringify(shuffle(documents)));
+    // for some reason the yaml package is not able to create a stream of documents. They recommend concatenating all
+    // documents using ...\n, but we're using ---\n instead
+    // @see https://eemeli.org/yaml/#yaml-stringify
+    // @see https://yaml.org/spec/1.1/index.html#document%20boundary%20marker/
+    let content = '';
+    for (let i = 0; i < documents.length; i++) {
+        const separator = (i !== documents.length - 1) ? '---\n' : '\n';
+        content = content + documents[i] + separator;
+    }
+
+    fs.writeFileSync(deploymentFile, content);
 
     return {
         isValid: totalDeployments !== 0,
