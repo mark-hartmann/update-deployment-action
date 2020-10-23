@@ -1,7 +1,7 @@
 import {extractContainerData} from "../extract-container-data";
 import {adjectives, names, uniqueNamesGenerator} from 'unique-names-generator';
 
-const getUsername = () => {
+const getAuthorName = () => {
     return uniqueNamesGenerator({
         dictionaries: [adjectives, names],
         length: 2,
@@ -17,85 +17,85 @@ const getImageName = () => {
     });
 };
 
-it('extracts the username, image and explicit tag', () => {
-    const username = getUsername();
-    const imageName = getImageName();
-    const release = 'v4.34.764';
+it('extracts the author, image and explicit tag', () => {
+    const author = getAuthorName();
+    const image = getImageName();
+    const tag = 'v4.34.764';
 
-    const data = `${username}/${imageName}:${release}`;
+    const data = `${author}/${image}:${tag}`;
     const extracted = extractContainerData(data);
 
-    expect(extracted.repository).not.toBeDefined();
-    expect(extracted.user).toEqual(username);
-    expect(extracted.image).toEqual(imageName);
-    expect(extracted.release).toEqual(release);
+    expect(extracted.registry).not.toBeDefined();
+    expect(extracted.author).toEqual(author);
+    expect(extracted.image).toEqual(image);
+    expect(extracted.tag).toEqual(tag);
 });
 
-it('extracts the username and image but neither repo or release', () => {
-    const username = getUsername();
-    const imageName = getImageName();
+it('extracts the author and image but neither registry or tag', () => {
+    const author = getAuthorName();
+    const image = getImageName();
 
-    const data = `${username}/${imageName}`;
+    const data = `${author}/${image}`;
     const extracted = extractContainerData(data);
 
-    expect(extracted.repository).not.toBeDefined();
-    expect(extracted.release).not.toBeDefined();
+    expect(extracted.registry).not.toBeDefined();
+    expect(extracted.tag).not.toBeDefined();
 
-    expect(extracted.image).toEqual(imageName);
-    expect(extracted.user).toEqual(username);
+    expect(extracted.image).toEqual(image);
+    expect(extracted.author).toEqual(author);
 });
 
-it('extracts the repo, username and image', () => {
-    const username = getUsername();
-    const imageName = getImageName();
-    const repo = 'ghcr.io';
+it('extracts the registry, author and image', () => {
+    const author = getAuthorName();
+    const image = getImageName();
+    const registry = 'ghcr.io';
 
-    const data = `${repo}/${username}/${imageName}`;
+    const data = `${registry}/${author}/${image}`;
     const extracted = extractContainerData(data);
 
-    expect(extracted.release).not.toBeDefined();
-    expect(extracted.repository).toEqual(repo);
-    expect(extracted.image).toEqual(imageName);
-    expect(extracted.user).toEqual(username);
+    expect(extracted.tag).not.toBeDefined();
+    expect(extracted.registry).toEqual(registry);
+    expect(extracted.image).toEqual(image);
+    expect(extracted.author).toEqual(author);
 });
 
-it('extracts the username, image and explicit tag', () => {
-    const username = getUsername();
-    const imageName = getImageName();
-    const release = 'v4.34.764';
-    const repo = 'ghcr.io';
+it('extracts the author, image and explicit tag', () => {
+    const author = getAuthorName();
+    const image = getImageName();
+    const tag = 'v4.34.764';
+    const registry = 'ghcr.io';
 
-    const data = `${repo}/${username}/${imageName}:${release}`;
+    const data = `${registry}/${author}/${image}:${tag}`;
     const extracted = extractContainerData(data);
 
-    expect(extracted.repository).toEqual(repo);
-    expect(extracted.user).toEqual(username);
-    expect(extracted.image).toEqual(imageName);
-    expect(extracted.release).toEqual(release);
+    expect(extracted.registry).toEqual(registry);
+    expect(extracted.author).toEqual(author);
+    expect(extracted.image).toEqual(image);
+    expect(extracted.tag).toEqual(tag);
 });
 
 it('can handle DockerHub officials (only the package name)', () => {
-    const imageName = getImageName();
+    const image = getImageName();
 
-    const data = `${imageName}`;
+    const data = `${image}`;
     const extracted = extractContainerData(data);
 
-    expect(extracted.repository).not.toBeDefined();
-    expect(extracted.user).not.toBeDefined();
-    expect(extracted.release).not.toBeDefined();
-    expect(extracted.image).toEqual(imageName);
+    expect(extracted.registry).not.toBeDefined();
+    expect(extracted.author).not.toBeDefined();
+    expect(extracted.tag).not.toBeDefined();
+    expect(extracted.image).toEqual(image);
 });
 
-it('can handle DockerHub officials (package name + release)', () => {
-    const imageName = getImageName();
-    const release = 'v4.34.764';
+it('can handle DockerHub officials (package name + tag)', () => {
+    const image = getImageName();
+    const tag = 'v4.34.764';
 
-    const data = `${imageName}:${release}`;
+    const data = `${image}:${tag}`;
     const extracted = extractContainerData(data);
 
-    expect(extracted.repository).not.toBeDefined();
-    expect(extracted.user).not.toBeDefined();
+    expect(extracted.registry).not.toBeDefined();
+    expect(extracted.author).not.toBeDefined();
 
-    expect(extracted.release).toEqual(release);
-    expect(extracted.image).toEqual(imageName);
+    expect(extracted.tag).toEqual(tag);
+    expect(extracted.image).toEqual(image);
 });

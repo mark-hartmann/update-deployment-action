@@ -1,8 +1,8 @@
 export interface ContainerData {
-    user: string;
+    registry: string|undefined;
+    author: string|undefined;
     image: string;
-    release: string|undefined;
-    repository: string|undefined;
+    tag: string|undefined;
 }
 
 const extractContainerData = (str: string): ContainerData => {
@@ -10,33 +10,42 @@ const extractContainerData = (str: string): ContainerData => {
     const registryRegex = /(.*\/)/;
     const tagRegex = /(?<=:)(?<tag>.+)/;
 
-    const pos = str.search(tagRegex);
-    let release;
-    if (pos !== -1) {
-        release = str.substring(pos);
-        str = str.substr(0, pos - 1);
+    let image;
+    let registry;
+    let author;
+    let tag;
+
+    // extract the tag if present
+    const tagPosition = str.search(tagRegex);
+
+    if (tagPosition !== -1) {
+        tag = str.substring(tagPosition);
+        str = str.substr(0, tagPosition - 1);
     }
 
-    const pos2 = str.split(registryRegex);
+    const imagePrefixParts = str.split(registryRegex);
 
-    const image = pos2.pop();
-    const registry = pos2.join('');
+    image = imagePrefixParts.pop();
+    registry = imagePrefixParts.join('');
 
-    let repos;
-    let users;
     if (registry) {
-        const fragments = registry.replace(/[\/]+$/, "").split('/');
-        users = fragments.pop();
-        repos = fragments.join('/');
+        // trim the last forward slash which is a result of the image extraction
+        const registryParts = registry.replace(/[\/]+$/, "").split('/');
+
+        // naively assuming that every registry uses the authors name at the end
+        author = registryParts.pop();
+        registry = registryParts.join('/');
+    }
+
+    if (image === undefined) {
+        throw new Error('This should never ever be thrown...');
     }
 
     return {
-        // @ts-ignore
-        image: image,
-        release: release,
-        repository: repos || undefined,
-        // @ts-ignore
-        user: users,
+        registry: registry || undefined,
+        author: author || undefined,
+        image,
+        tag: tag || undefined
     }
 };
 
