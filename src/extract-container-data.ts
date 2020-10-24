@@ -10,9 +10,9 @@ const extractContainerData = (str: string): ContainerData => {
     const registryRegex = /(.*\/)/;
     const tagRegex = /(?<=:)(?<tag>.+)/;
 
-    let image;
     let registry;
     let author;
+    let image;
     let tag;
 
     // extract the tag if present
@@ -44,7 +44,7 @@ const extractContainerData = (str: string): ContainerData => {
     return {
         registry: registry || undefined,
         author: author || undefined,
-        image,
+        image: image,
         tag: tag || undefined
     }
 };

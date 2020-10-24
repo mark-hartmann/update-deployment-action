@@ -12,10 +12,10 @@ export interface DeploymentInfo {
 
 export interface Container {
     name: string,
+    registry: string | undefined,
     author: string | undefined,
-    imageName: string | undefined,
-    release: string | undefined,
-    repository: string | undefined,
+    image: string | undefined,
+    tag: string | undefined,
 }
 
 export interface Deployment {
@@ -44,7 +44,7 @@ const generateImageName = () => {
     });
 }
 
-const generateReleaseName = () => {
+const generateTagName = () => {
     return uniqueNamesGenerator({
         dictionaries: [['r'], animals],
         separator: '-',
@@ -83,31 +83,31 @@ const deploymentFragment = (config: {
     for (let i = 0; i < nContainers; i++) {
         const image = generateImageName();
         const author = generateAuthorName();
-        const repository = ['', 'ghcr.io/'][Math.round(Math.random())];
+        const registry = ['', 'ghcr.io/'][Math.round(Math.random())];
 
         const useExplicitTag = config.containers.explicitTag;
         const useImplicitTag = config.containers.implicitTag;
         const useGeneratedTag = !(useImplicitTag || useExplicitTag);
 
-        let release;
+        let tag;
         if (useGeneratedTag) {
-            release = generateReleaseName();
+            tag = generateTagName();
         } else if (useExplicitTag) {
-            release = 'latest';
+            tag = 'latest';
         }
 
-        const tagSuffix = release ? `:${release}` : '';
+        const tagSuffix = tag ? `:${tag}` : '';
         content.spec.template.spec.containers.push({
             name: image,
-            image: `${repository}${author}/${image}${tagSuffix}`
+            image: `${registry}${author}/${image}${tagSuffix}`
         });
 
         containers.push({
             name: image,
+            registry: registry === '' ? 'Docker' : 'Github',
             author: author,
-            release: release,
-            imageName: image,
-            repository: repository === '' ? 'Docker' : 'Github'
+            image: image,
+            tag: tag
         });
     }
 
@@ -191,7 +191,7 @@ export const generateDeployment = (config?: Config): DeploymentInfo => {
 
     return {
         isValid: totalDeployments !== 0,
-        nextRelease: generateReleaseName(),
+        nextRelease: generateTagName(),
         // @ts-ignore
         container: containerToTest,
         path: deploymentFile

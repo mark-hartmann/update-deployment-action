@@ -74,7 +74,7 @@ it('extracts the author, image and explicit tag', () => {
     expect(extracted.tag).toEqual(tag);
 });
 
-it('can handle DockerHub officials (only the package name)', () => {
+it('can handle DockerHub officials (only the image name)', () => {
     const image = getImageName();
 
     const data = `${image}`;
@@ -86,7 +86,7 @@ it('can handle DockerHub officials (only the package name)', () => {
     expect(extracted.image).toEqual(image);
 });
 
-it('can handle DockerHub officials (package name + tag)', () => {
+it('can handle DockerHub officials (image name + tag)', () => {
     const image = getImageName();
     const tag = 'v4.34.764';
 

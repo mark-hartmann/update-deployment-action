@@ -1,18 +1,18 @@
 name: 'Update Kubernetes Deployment'
 description: 'updates the specified deployment file'
 inputs:
-  release:
-    description: 'The release you want to deploy'
+  tag:
+    description: 'The image release/tag you want to deploy'
     required: true
-  container:
-    description: 'The name of the container you want to apply the release to.'
+  name:
+    description: 'The name of the container (in the k8s deployment, not the image name) you want to apply the tag to'
     required: true
   deployment:
-    description: 'The deployment yaml file'
+    description: 'the path to the deployment yaml file'
     required: true
 outputs:
   container:
-    description: 'The container + release'
+    description: 'The container + tag'
 runs:
   using: 'node12'
   main: 'src/index.js'

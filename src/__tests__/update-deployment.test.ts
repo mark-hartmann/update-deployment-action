@@ -1,6 +1,5 @@
 import {run} from '../update-deployment';
 import {setup} from "../test/setup";
-import exp from "constants";
 
 it('throws an error if the deployment-file is not found', () => {
     process.env.DEPLOYMENT_MANIFEST = 'unknown.yaml';
@@ -45,10 +44,10 @@ it('finds the correct image by its name', () => {
     const result = run();
 
     expect(result.found?.image).toBeDefined();
-    expect(result.found?.image).toEqual(deployment.container.imageName);
+    expect(result.found?.image).toEqual(deployment.container.image);
 });
 
-it('it applies the given release to the existing image', () => {
+it('applies the given tag to the existing image', () => {
     const deployment = setup({
         deployments: {
             amount: 1,
@@ -60,14 +59,14 @@ it('it applies the given release to the existing image', () => {
     const result = run();
 
     expect(result.found?.image).toBeDefined();
-    expect(result.found?.image).toEqual(deployment.container.imageName);
+    expect(result.found?.image).toEqual(deployment.container.image);
 
     // make sure the found tag is equal to the one the one in the deployment
-    expect(result.found?.tag).toEqual(deployment.container.release);
+    expect(result.found?.tag).toEqual(deployment.container.tag);
     expect(result.changedTo?.tag).toEqual(deployment.nextRelease);
 });
 
-it('it can handle images with :latest', () => {
+it('can handle images with :latest', () => {
     const deployment = setup({
         deployments: {
             amount: 1,
@@ -82,11 +81,11 @@ it('it can handle images with :latest', () => {
     const result = run();
 
     expect(result.found?.image).toBeDefined();
-    expect(deployment.container.release).toEqual('latest');
-    expect(result.found?.image).toEqual(deployment.container.imageName);
+    expect(deployment.container.tag).toEqual('latest');
+    expect(result.found?.image).toEqual(deployment.container.image);
 
     // make sure the found tag is equal to the one the one in the deployment
-    expect(result.found?.tag).toEqual(deployment.container.release);
+    expect(result.found?.tag).toEqual(deployment.container.tag);
     expect(result.changedTo?.tag).toEqual(deployment.nextRelease);
 });
 
@@ -105,10 +104,10 @@ it('it can handle images with implicit :latest', () => {
     const result = run();
 
     expect(result.found?.image).toBeDefined();
-    expect(deployment.container.release).not.toBeDefined();
-    expect(result.found?.image).toEqual(deployment.container.imageName);
+    expect(deployment.container.tag).not.toBeDefined();
+    expect(result.found?.image).toEqual(deployment.container.image);
 
     // make sure the found tag is equal to the one the one in the deployment
-    expect(result.found?.tag).toEqual(deployment.container.release);
+    expect(result.found?.tag).toEqual(deployment.container.tag);
     expect(result.changedTo?.tag).toEqual(deployment.nextRelease);
 });

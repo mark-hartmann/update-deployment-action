@@ -11,8 +11,8 @@ export interface UpdateResult {
 }
 
 const run = (): UpdateResult => {
-    const release = process.env.RELEASE || getInput('release');
-    const container = process.env.IMAGE || getInput('container');
+    const tag = process.env.TAG || getInput('tag');
+    const deploymentName = process.env.IMAGE || getInput('name');
     const deployment = process.env.DEPLOYMENT_MANIFEST || getInput('deployment');
 
     if (!fs.existsSync(deployment)) {
@@ -46,7 +46,7 @@ const run = (): UpdateResult => {
             originalData = containerData;
 
             // check if this container is the one we try to apply the tag to
-            if (containerData.image === container) {
+            if (containerData.image === deploymentName) {
                 let newValue = `${containerData.image}`;
 
                 if (containerData.author) {
@@ -57,7 +57,7 @@ const run = (): UpdateResult => {
                     newValue = `${containerData.registry}/${newValue}`;
                 }
 
-                c.image = `${newValue}:${release}`;
+                c.image = `${newValue}:${tag}`;
             }
 
             modifiedData = extractContainerData(c.image);

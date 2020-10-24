@@ -4,7 +4,7 @@ import {Config, DeploymentInfo, generateDeployment} from "../deployment-generato
 import {animals, uniqueNamesGenerator} from "unique-names-generator";
 
 process.env.IMAGE = 'mark-hartmann/test-image';
-process.env.RELEASE = '0.0.2';
+process.env.TAG = '0.0.2';
 process.env.DEPLOYMENT_MANIFEST = 'test-deployment.yaml';
 
 export const testDataDirectory = process.cwd() + "/deployments";
@@ -18,7 +18,7 @@ afterEach(() => {
 
     // reset all environment variables so we don't have to do it manually
     process.env.IMAGE = undefined;
-    process.env.RELEASE = undefined;
+    process.env.TAG = undefined;
     process.env.DEPLOYMENT_MANIFEST = undefined;
 });
 
@@ -29,7 +29,7 @@ export const setup = (config?: Config): DeploymentInfo => {
         dictionaries: [animals]
     });
 
-    process.env.RELEASE = deployment.nextRelease || uniqueNamesGenerator({
+    process.env.TAG = deployment.nextRelease || uniqueNamesGenerator({
         dictionaries: [animals]
     });
 
