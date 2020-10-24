@@ -13,10 +13,10 @@ export interface DeploymentInfo {
 
 export interface Container {
     name: string,
-    author: string,
-    imageName: string,
-    release: string,
-    repository: string,
+    author: string|undefined,
+    imageName: string|undefined,
+    release: string|undefined,
+    repository: string|undefined,
 }
 
 export interface Deployment {
@@ -67,7 +67,13 @@ const serviceFragment = (): string => {
 };
 
 
-const deploymentFragment = (config: { containers: { amount: number } }): Deployment => {
+const deploymentFragment = (config: {
+    containers: {
+        amount: number,
+        implicitTag: boolean,
+        explicitTag: boolean,
+    }
+}): Deployment => {
 
     const templatePath = './src/test/templates/deployment-template.json';
     const content = JSON.parse(fs.readFileSync(templatePath, 'utf8'));
@@ -78,12 +84,22 @@ const deploymentFragment = (config: { containers: { amount: number } }): Deploym
     for (let i = 0; i < nContainers; i++) {
         const image = generateImageName();
         const author = generateAuthorName();
-        const release = generateReleaseName();
         const repository = ['', 'ghcr.io/'][Math.round(Math.random())];
 
+        const useExplicitTag = config.containers.explicitTag;
+        const useImplicitTag = config.containers.implicitTag;
+        const useGeneratedTag = !useImplicitTag && !useImplicitTag;
+
+        let release;
+        if (useGeneratedTag) {
+            release = generateReleaseName();
+        } else if (useExplicitTag) {
+            release = 'latest';
+        }
+        const tagSuffix = release ? `:${release}` : '';
         content.spec.template.spec.containers.push({
             name: image,
-            image: `${repository}${author}/${image}:${release}`
+            image: `${repository}${author}/${image}${tagSuffix}`
         });
 
         containers.push({
@@ -108,7 +124,11 @@ export interface Config {
     deployments?: {
         amount: number,
         containers?: {
-            amount: number
+            amount: number,
+            tags?: {
+                explicitLatest?: boolean;
+                implicitLatest?: boolean;
+            }
         }
     },
     shuffle?: boolean
@@ -128,6 +148,13 @@ export const generateDeployment = (config?: Config): DeploymentInfo => {
         ? config.deployments.containers.amount
         : -1;
 
+    const useExplicitLatest = config?.deployments?.containers?.tags?.explicitLatest || false;
+    const useImplicitLatest = config?.deployments?.containers?.tags?.implicitLatest || false;
+
+    if (useExplicitLatest && useImplicitLatest) {
+        throw new Error('Unable to use bot implicit and explicit tags at the same time.');
+    }
+
     let containerToTest: Container;
 
     for (let i = 0; i < totalServices; i++) {
@@ -138,7 +165,9 @@ export const generateDeployment = (config?: Config): DeploymentInfo => {
         const nContainers = totalContainersPerDocument > -1 ? totalContainersPerDocument : randomIntFromInterval(1, 4);
         const deployment: Deployment = deploymentFragment({
             containers: {
-                amount: nContainers
+                amount: nContainers,
+                explicitTag: useExplicitLatest,
+                implicitTag: useImplicitLatest
             }
         });
 
