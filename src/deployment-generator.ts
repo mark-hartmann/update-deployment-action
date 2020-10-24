@@ -1,5 +1,5 @@
 import {adjectives, animals, names, uniqueNamesGenerator} from 'unique-names-generator';
-import {testDataDirectory} from "./setup";
+import {testDataDirectory} from "./test/setup";
 import fs from 'fs';
 import yaml from 'yaml';
 

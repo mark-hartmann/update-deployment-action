@@ -1,6 +1,6 @@
 import {beforeEach} from "@jest/globals";
 import fs from 'fs';
-import {Config, DeploymentInfo, generateDeployment} from "./deployment-generator";
+import {Config, DeploymentInfo, generateDeployment} from "../deployment-generator";
 import {animals, uniqueNamesGenerator} from "unique-names-generator";
 
 process.env.IMAGE = 'mark-hartmann/test-image';
