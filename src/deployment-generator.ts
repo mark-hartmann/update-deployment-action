@@ -1,8 +1,7 @@
 import {adjectives, animals, names, uniqueNamesGenerator} from 'unique-names-generator';
-import {testDataDirectory} from "./setup";
+import {testDataDirectory} from "./test/setup";
 import fs from 'fs';
 import yaml from 'yaml';
-import {doc} from "prettier";
 
 export interface DeploymentInfo {
     path: string,
@@ -13,10 +12,10 @@ export interface DeploymentInfo {
 
 export interface Container {
     name: string,
-    author: string|undefined,
-    imageName: string|undefined,
-    release: string|undefined,
-    repository: string|undefined,
+    author: string | undefined,
+    imageName: string | undefined,
+    release: string | undefined,
+    repository: string | undefined,
 }
 
 export interface Deployment {
@@ -88,7 +87,7 @@ const deploymentFragment = (config: {
 
         const useExplicitTag = config.containers.explicitTag;
         const useImplicitTag = config.containers.implicitTag;
-        const useGeneratedTag = !useImplicitTag && !useImplicitTag;
+        const useGeneratedTag = !(useImplicitTag || useExplicitTag);
 
         let release;
         if (useGeneratedTag) {
@@ -96,6 +95,7 @@ const deploymentFragment = (config: {
         } else if (useExplicitTag) {
             release = 'latest';
         }
+
         const tagSuffix = release ? `:${release}` : '';
         content.spec.template.spec.containers.push({
             name: image,
