@@ -29,7 +29,7 @@ export const setup = (config?: Config): DeploymentInfo => {
         dictionaries: [animals]
     });
 
-    process.env.RELEASE = deployment.container?.release || uniqueNamesGenerator({
+    process.env.RELEASE = deployment.nextRelease || uniqueNamesGenerator({
         dictionaries: [animals]
     });
 
