@@ -2,7 +2,6 @@ import {adjectives, animals, names, uniqueNamesGenerator} from 'unique-names-gen
 import {testDataDirectory} from "./setup";
 import fs from 'fs';
 import yaml from 'yaml';
-import {doc} from "prettier";
 
 export interface DeploymentInfo {
     path: string,
@@ -13,10 +12,10 @@ export interface DeploymentInfo {
 
 export interface Container {
     name: string,
-    author: string|undefined,
-    imageName: string|undefined,
-    release: string|undefined,
-    repository: string|undefined,
+    author: string | undefined,
+    imageName: string | undefined,
+    release: string | undefined,
+    repository: string | undefined,
 }
 
 export interface Deployment {
