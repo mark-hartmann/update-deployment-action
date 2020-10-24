@@ -2,6 +2,7 @@ import {adjectives, animals, names, uniqueNamesGenerator} from 'unique-names-gen
 import {testDataDirectory} from "./setup";
 import fs from 'fs';
 import yaml from 'yaml';
+import {doc} from "prettier";
 
 export interface DeploymentInfo {
     path: string,
@@ -12,10 +13,10 @@ export interface DeploymentInfo {
 
 export interface Container {
     name: string,
-    author: string,
-    imageName: string,
-    release: string,
-    repository: string,
+    author: string|undefined,
+    imageName: string|undefined,
+    release: string|undefined,
+    repository: string|undefined,
 }
 
 export interface Deployment {
@@ -66,7 +67,13 @@ const serviceFragment = (): string => {
 };
 
 
-const deploymentFragment = (config: { containers: { amount: number } }): Deployment => {
+const deploymentFragment = (config: {
+    containers: {
+        amount: number,
+        implicitTag: boolean,
+        explicitTag: boolean,
+    }
+}): Deployment => {
 
     const templatePath = './src/test/templates/deployment-template.json';
     const content = JSON.parse(fs.readFileSync(templatePath, 'utf8'));
@@ -77,12 +84,22 @@ const deploymentFragment = (config: { containers: { amount: number } }): Deploym
     for (let i = 0; i < nContainers; i++) {
         const image = generateImageName();
         const author = generateAuthorName();
-        const release = generateReleaseName();
         const repository = ['', 'ghcr.io/'][Math.round(Math.random())];
 
+        const useExplicitTag = config.containers.explicitTag;
+        const useImplicitTag = config.containers.implicitTag;
+        const useGeneratedTag = !useImplicitTag && !useImplicitTag;
+
+        let release;
+        if (useGeneratedTag) {
+            release = generateReleaseName();
+        } else if (useExplicitTag) {
+            release = 'latest';
+        }
+        const tagSuffix = release ? `:${release}` : '';
         content.spec.template.spec.containers.push({
             name: image,
-            image: `${repository}${author}/${image}:${release}`
+            image: `${repository}${author}/${image}${tagSuffix}`
         });
 
         containers.push({
@@ -107,7 +124,11 @@ export interface Config {
     deployments?: {
         amount: number,
         containers?: {
-            amount: number
+            amount: number,
+            tags?: {
+                explicitLatest?: boolean;
+                implicitLatest?: boolean;
+            }
         }
     },
     shuffle?: boolean
@@ -117,9 +138,22 @@ export const generateDeployment = (config?: Config): DeploymentInfo => {
 
     const documents = [];
 
-    const totalServices = config?.services?.amount || 3
-    const totalDeployments = config?.deployments?.amount || 1
-    const totalContainersPerDocument = config?.deployments?.containers?.amount || -1;
+    const totalServices = config?.services?.amount !== undefined
+        ? config.services.amount
+        : 3;
+    const totalDeployments = config?.deployments?.amount !== undefined
+        ? config.deployments.amount
+        : 1;
+    const totalContainersPerDocument = config?.deployments?.containers?.amount !== undefined
+        ? config.deployments.containers.amount
+        : -1;
+
+    const useExplicitLatest = config?.deployments?.containers?.tags?.explicitLatest || false;
+    const useImplicitLatest = config?.deployments?.containers?.tags?.implicitLatest || false;
+
+    if (useExplicitLatest && useImplicitLatest) {
+        throw new Error('Unable to use bot implicit and explicit tags at the same time.');
+    }
 
     let containerToTest: Container;
 
@@ -131,7 +165,9 @@ export const generateDeployment = (config?: Config): DeploymentInfo => {
         const nContainers = totalContainersPerDocument > -1 ? totalContainersPerDocument : randomIntFromInterval(1, 4);
         const deployment: Deployment = deploymentFragment({
             containers: {
-                amount: nContainers
+                amount: nContainers,
+                explicitTag: useExplicitLatest,
+                implicitTag: useImplicitLatest
             }
         });
 
@@ -141,7 +177,17 @@ export const generateDeployment = (config?: Config): DeploymentInfo => {
 
     const deploymentFile = `${testDataDirectory}/${generateImageName()}-deployment.yaml`;
 
-    fs.writeFileSync(deploymentFile, yaml.stringify(shuffle(documents)));
+    // for some reason the yaml package is not able to create a stream of documents. They recommend concatenating all
+    // documents using ...\n, but we're using ---\n instead
+    // @see https://eemeli.org/yaml/#yaml-stringify
+    // @see https://yaml.org/spec/1.1/index.html#document%20boundary%20marker/
+    let content = '';
+    for (let i = 0; i < documents.length; i++) {
+        const separator = (i !== documents.length - 1) ? '---\n' : '\n';
+        content = content + documents[i] + separator;
+    }
+
+    fs.writeFileSync(deploymentFile, content);
 
     return {
         isValid: totalDeployments !== 0,
