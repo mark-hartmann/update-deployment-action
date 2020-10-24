@@ -87,7 +87,7 @@ const deploymentFragment = (config: {
 
         const useExplicitTag = config.containers.explicitTag;
         const useImplicitTag = config.containers.implicitTag;
-        const useGeneratedTag = !useImplicitTag && !useImplicitTag;
+        const useGeneratedTag = !(useImplicitTag || useExplicitTag);
 
         let release;
         if (useGeneratedTag) {
@@ -95,6 +95,7 @@ const deploymentFragment = (config: {
         } else if (useExplicitTag) {
             release = 'latest';
         }
+
         const tagSuffix = release ? `:${release}` : '';
         content.spec.template.spec.containers.push({
             name: image,
