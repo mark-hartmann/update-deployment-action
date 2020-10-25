@@ -66,6 +66,30 @@ it('applies the given tag to the existing image', () => {
     expect(result.changedTo?.tag).toEqual(deployment.nextRelease);
 });
 
+it('extracts the correct tag if value was passed by git(hub)', () => {
+    const deployment = setup({
+        deployments: {
+            amount: 1,
+            containers: {
+                amount: 1
+            }
+        }
+    });
+
+    // if directly passed from github (see issue #8), the tag is prefixed. The deployment generator does not generate
+    // tags with this prefix, so we recreate this by assigning it to env.TAG
+    process.env.TAG = `refs/tags/${process.env.TAG}`;
+
+    const result = run();
+
+    expect(result.found?.image).toBeDefined();
+    expect(result.found?.image).toEqual(deployment.container.image);
+
+    // make sure the found tag is equal to the one the one in the deployment
+    expect(result.found?.tag).toEqual(deployment.container.tag);
+    expect(result.changedTo?.tag).toEqual(deployment.nextRelease);
+});
+
 it('can handle images with :latest', () => {
     const deployment = setup({
         deployments: {
