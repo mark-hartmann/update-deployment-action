@@ -11,7 +11,7 @@ export interface UpdateResult {
 }
 
 const run = (): UpdateResult => {
-    const tag = process.env.TAG || getInput('tag');
+    let tag = process.env.TAG || getInput('tag');
     const deploymentName = process.env.IMAGE || getInput('name');
     const deployment = process.env.DEPLOYMENT_MANIFEST || getInput('deployment');
 
@@ -23,6 +23,11 @@ const run = (): UpdateResult => {
 
     if (fileContents === '') {
         throw new Error('File is empty');
+    }
+
+
+    if (tag.indexOf('refs/tags/') !== -1) {
+        tag = tag.replace('refs/tags/', '');
     }
 
     const documents: any = [];
