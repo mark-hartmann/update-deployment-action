@@ -2,11 +2,10 @@
   "name": "update-deployment-action",
   "version": "0.0.0",
   "description": "",
-  "main": "src/index.js",
+  "main": "dist/index.js",
   "scripts": {
     "test": "jest --no-cache --watchAll",
     "test-once": "jest --no-cache",
-    "run": "node src/index.js",
     "build": "tsc --noEmit && ncc build src/update-deployment.ts -o dist"
   },
   "repository": {
