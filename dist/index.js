@@ -1898,6 +1898,9 @@ var run = function () {
     if (fileContents === '') {
         throw new Error('File is empty');
     }
+    if (tag.indexOf('refs/tags/') !== -1) {
+        tag = tag.replace('refs/tags/', '');
+    }
     var documents = [];
     var yamlDocuments = yaml_1.default.parseAllDocuments(fileContents);
     var modifiedData;
@@ -1906,7 +1909,7 @@ var run = function () {
         var json = document.toJSON();
         // Check if its a deployment before trying to manipulate it. If not, return early
         if (!json.kind || json.kind !== 'Deployment') {
-            documents.push(document);
+            documents.push(yaml_1.default.stringify(json));
             return;
         }
         var containers = json.spec.template.spec.containers || [];
@@ -1927,17 +1930,17 @@ var run = function () {
             modifiedData = extract_container_data_1.extractContainerData(c.image);
         });
         documents.push(yaml_1.default.stringify(json));
-        // for some reason the yaml package is not able to create a stream of documents. They recommend concatenating all
-        // documents using ...\n, but we're using ---\n instead
-        // @see https://eemeli.org/yaml/#yaml-stringify
-        // @see https://yaml.org/spec/1.1/index.html#document%20boundary%20marker/
-        var content = '';
-        for (var i = 0; i < documents.length; i++) {
-            var separator = (i !== documents.length - 1) ? '---\n' : '\n';
-            content = content + documents[i] + separator;
-        }
-        fs_1.default.writeFileSync(deployment, content);
     });
+    // for some reason the yaml package is not able to create a stream of documents. They recommend concatenating all
+    // documents using ...\n, but we're using ---\n instead
+    // @see https://eemeli.org/yaml/#yaml-stringify
+    // @see https://yaml.org/spec/1.1/index.html#document%20boundary%20marker/
+    var content = '';
+    for (var i = 0; i < documents.length; i++) {
+        var separator = (i !== documents.length - 1) ? '---\n' : '\n';
+        content = content + documents[i] + separator;
+    }
+    fs_1.default.writeFileSync(deployment, content);
     return {
         found: originalData,
         changedTo: modifiedData
