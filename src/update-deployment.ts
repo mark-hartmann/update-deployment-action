@@ -41,7 +41,7 @@ const run = (): UpdateResult => {
 
         // Check if its a deployment before trying to manipulate it. If not, return early
         if (!json.kind || json.kind !== 'Deployment') {
-            documents.push(document);
+            documents.push(yaml.stringify(json));
             return;
         }
 
@@ -69,19 +69,19 @@ const run = (): UpdateResult => {
         });
 
         documents.push(yaml.stringify(json));
-
-        // for some reason the yaml package is not able to create a stream of documents. They recommend concatenating all
-        // documents using ...\n, but we're using ---\n instead
-        // @see https://eemeli.org/yaml/#yaml-stringify
-        // @see https://yaml.org/spec/1.1/index.html#document%20boundary%20marker/
-        let content = '';
-        for (let i = 0; i < documents.length; i++) {
-            const separator = (i !== documents.length - 1) ? '---\n' : '\n';
-            content = content + documents[i] + separator;
-        }
-
-        fs.writeFileSync(deployment, content);
     });
+
+    // for some reason the yaml package is not able to create a stream of documents. They recommend concatenating all
+    // documents using ...\n, but we're using ---\n instead
+    // @see https://eemeli.org/yaml/#yaml-stringify
+    // @see https://yaml.org/spec/1.1/index.html#document%20boundary%20marker/
+    let content = '';
+    for (let i = 0; i < documents.length; i++) {
+        const separator = (i !== documents.length - 1) ? '---\n' : '\n';
+        content = content + documents[i] + separator;
+    }
+
+    fs.writeFileSync(deployment, content);
 
     return {
         found: originalData,
