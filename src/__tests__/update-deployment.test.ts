@@ -1,5 +1,7 @@
 import {run} from '../update-deployment';
 import {setup} from "../test/setup";
+import * as fs from "fs";
+import exp from "constants";
 
 it('throws an error if the deployment-file is not found', () => {
     process.env.DEPLOYMENT_MANIFEST = 'unknown.yaml';
@@ -134,4 +136,30 @@ it('it can handle images with implicit :latest', () => {
     // make sure the found tag is equal to the one the one in the deployment
     expect(result.found?.tag).toEqual(deployment.container.tag);
     expect(result.changedTo?.tag).toEqual(deployment.nextRelease);
+});
+
+it('has always only one newline at the end of the document', () => {
+    const deployment = setup({
+        deployments: {
+            amount: 1
+        },
+        services: {
+            amount: 0
+        }
+    });
+
+    run();
+
+    // apply another tag
+    process.env.TAG = 'v2.0.0';
+    run();
+
+    // apply another tag
+    process.env.TAG = 'v3.0.0';
+    run();
+
+    const content = fs.readFileSync(deployment.path, 'utf8');
+    const newLines = content.search(/\n{2,}$/);
+
+    expect(newLines).toEqual(-1);
 });

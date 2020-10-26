@@ -81,6 +81,9 @@ const run = (): UpdateResult => {
         content = content + documents[i] + separator;
     }
 
+    // quick fix for issue #13
+    content = content.replace(/\n{2,}/g, '\n');
+
     fs.writeFileSync(deployment, content);
 
     return {
