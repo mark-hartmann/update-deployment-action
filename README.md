@@ -44,3 +44,6 @@ jobs:
           name: name-of-deployment
           deployment: generic-deployment.yaml
 ```
+
+## Attention
+This action commits no changes! Due to flexibility, the change must be committed by the user himself. For example, you could use [this action](https://github.com/ad-m/github-push-action "github-push-action").
