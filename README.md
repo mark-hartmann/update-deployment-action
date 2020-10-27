@@ -2,7 +2,7 @@
 
 A simple action for automatically updating docker tags in a Kubernetes deployment within a workflow.
 
-What is it good for? Well, I have tried to find a solution for the deplyoment of multi-repository microservices, which allows the automatic replication of new releases by the services telling the master-repository about a new release per event. are there already better and more sophisticated options? Definitely.
+What is it good for? Well, I have tried to find a solution for the deplyoment of multi-repository microservices, which allows the automatic replication of new releases by the services telling the master-repository about a new release per event. are there already better and more sophisticated options? Probably.
 
 # Usage
 When using this action three parameters are passed:
