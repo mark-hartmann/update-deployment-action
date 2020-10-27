@@ -5,8 +5,26 @@ A simple action for automatically updating docker tags in a Kubernetes deploymen
 What is it good for? Well, I have tried to find a solution for the deplyoment of multi-repository microservices, which allows the automatic replication of new releases by the services telling the master-repository about a new release per event. are there already better and more sophisticated options? Definitely.
 
 # Usage
+When using this action three parameters are passed:
 
-Example: A service repository triggers an event named new-release when creating a tag:
+| Input         | Required           | Description  |
+| :----------- |:-------------:| :----- |
+| tag      | true | The image release/tag you want to deploy |
+| name      | true |   The name of the container (in the k8s deployment, not the image name) you want to apply the tag to |
+| deployment | true      | the path to the deployment yaml file |
+
+**Important**: the name refers to the name an image was given, not the name of the actual image!
+
+``` yaml
+...
+  ...
+    spec:
+      containers:
+        - name: <some-name> # this is what you pass as name
+          image: <some-author>/<some-image>:<some-tag>
+```
+---
+**Example**: A service repository triggers an event named new-release when creating a tag:
 
 ``` yaml
 name: generic workflow
