@@ -1,0 +1,13 @@
+name: tests-dev
+
+on:
+  pull_request:
+    paths:
+      - 'src/**'
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - run: npm install && npm run test-once
